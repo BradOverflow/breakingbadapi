@@ -7,6 +7,11 @@
 
 
 
+
+
+//video i used
+//https://www.youtube.com/watch?v=Y-GxKhLRGyE
+
 import SwiftUI
 
 struct Quote: Codable {
@@ -14,7 +19,6 @@ struct Quote: Codable {
     var quote: String
     var author: String
     var series: String
-    
 }
 
 
@@ -26,19 +30,38 @@ struct ContentView: View {
                 VStack(alignment: .leading) {
                     Text(quote.author)
                         .font(.body)
+                        .foregroundColor(Color("skyBlue"))
                     Text(quote.quote)
                         .font(.body)
-                    
+                        .foregroundColor(.secondary)
                 }
-            }.navigationTitle("Quotes")
+            }
+            .navigationTitle("Quotes")
+            .task {
+                await fetchData()
+            }
         }
     }
+
+   
+
     func fetchData() async{
-        //create url
-        guard let url = URL(string: "https://www.breakingbadapi.com/api/quotes")
-        //fetch data from url
-        
-        //decode that data
+            //create url
+        guard let url = URL(string: "https://www.breakingbadapi.com/api") else {
+            print("hey man THIS URL DOES NOT WORK")
+            return
+        }
+            //fetch data from url
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            
+            //decode that data brother
+            if let decodedResponse = try? JSONDecoder().decode([Quote].self, from: data) {
+                quotes = decodedResponse
+            }
+        } catch {
+            print("bad news... this data isn't valid :(")
+        }
     }
 }
 
